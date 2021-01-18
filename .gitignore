@@ -1,0 +1,4 @@
+env-macos/
+env-win/
+target/
+debug/
