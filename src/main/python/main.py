@@ -51,8 +51,12 @@ if __name__ == "__main__":
 
 	logger = Logger()
 	appctx = MyApplicationContext()
-	os.environ["PATH"] += os.pathsep + os.path.split(appctx.get_resource("ffprobe"))[0]
-	os.environ["IMAGEIO_FFMPEG_EXE"] = appctx.get_resource("ffmpeg")
+	if sys.platform == "win32":
+		os.environ["PATH"] += os.pathsep + os.path.split(appctx.get_resource("ffprobe.exe"))[0]
+		os.environ["IMAGEIO_FFMPEG_EXE"] = appctx.get_resource("ffmpeg.exe")
+	else:
+		os.environ["PATH"] += os.pathsep + os.path.split(appctx.get_resource("ffprobe"))[0]
+		os.environ["IMAGEIO_FFMPEG_EXE"] = appctx.get_resource("ffmpeg")
 
 	import shutil
 

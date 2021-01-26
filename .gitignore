@@ -1,4 +1,4 @@
-env-macos/
-env-win/
-target/
-debug/
+/env-macos/
+/env-win/
+/target/
+/debug/
