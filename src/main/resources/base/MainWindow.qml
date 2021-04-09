@@ -5,7 +5,8 @@ import QtQuick.Layouts 1.15
 import GL 0.1
 import QtQuick.Dialogs 1.0
 import "rdcontrols" as RD
-// import Qt.labs.platform 1.1
+import QtQml 2.15
+
 
 
 ApplicationWindow {
@@ -17,7 +18,6 @@ ApplicationWindow {
     minimumWidth: 400
     minimumHeight: 300
     color: style.background
-    // color: "green"
     property variant prevVisibility: visibility
 
     Item {
@@ -357,7 +357,7 @@ ApplicationWindow {
                                         folder: shortcuts.documents + "/rdapp/projects/rdproject"
                                         onAccepted: {
                                             var path = saveAsFile.fileUrl.toString();
-                                            path = path.replace(/^(file:\/{3})/,"/");
+                                            path = path.replace(/^(file:\/{3})/,(Qt.platform.os == "windows" ? "" : "/"));
                                             var cleanPath = decodeURIComponent(path);
                                             console.log(cleanPath)
                                             con.save_as(cleanPath)
@@ -383,7 +383,7 @@ ApplicationWindow {
                                         nameFilters: [ "rdapp project (*.rd)" ]
                                         onAccepted: {
                                             var path = loadFile.fileUrl.toString();
-                                            path = path.replace(/^(file:\/{3})/,"/");
+                                            path = path.replace(/^(file:\/{3})/,(Qt.platform.os == "windows" ? "" : "/"));
                                             var cleanPath = decodeURIComponent(path);
                                             console.log(cleanPath)
                                             con.load(cleanPath)

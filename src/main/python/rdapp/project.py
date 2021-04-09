@@ -274,14 +274,15 @@ class RenderConfig:
         self.max_depth = 10
         self.min_depth = 0.001
         self.aa = 2
-        self.path = QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/render"
+        self.path = QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/render/auto"
         self.snap_path = QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/snap"
-        self.frames = "0"
+        self.frames = (0, 100)
         self.preview_max_size = 1024
+        self.mp4 = False
 
     def checkpaths(self):
-        if not os.path.exists(self.path):
-            self.path = QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/render"
+        if not os.path.exists(self.path) and self.path != QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/render/auto":
+            self.path = QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/render/auto"
         if not os.path.exists(self.snap_path):
             self.snap_path = QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/snap"
     
@@ -300,6 +301,8 @@ class RenderConfig:
         data["snap_path"] = self.snap_path
         data["frames"] = self.frames
         data["preview_max_size"] = self.preview_max_size
+        data["mp4"] = self.mp4
+
         return data
 
     @staticmethod
@@ -311,19 +314,21 @@ class RenderConfig:
     @staticmethod
     def load(data):
         self = RenderConfig()
-        self.size = data["size"]
-        self.max_patch = data["max_patch"]
-        self.steps = data["steps"]
-        self.steps_max = data["steps_max"]
-        self.step_scale = data["step_scale"]
-        self.stop_dist = data["stop_dist"]
-        self.max_depth = data["max_depth"]
-        self.min_depth = data["min_depth"]
-        self.aa = data["aa"]
-        self.path = data["path"]
-        self.snap_path = data["snap_path"]
-        self.frames = data["frames"]
-        self.preview_max_size = data["preview_max_size"]
+        if "size" in data: self.size = data["size"]
+        if "max_patch" in data: self.max_patch = data["max_patch"]
+        if "steps" in data: self.steps = data["steps"]
+        if "steps_max" in data: self.steps_max = data["steps_max"]
+        if "step_scale" in data: self.step_scale = data["step_scale"]
+        if "stop_dist" in data: self.stop_dist = data["stop_dist"]
+        if "max_depth" in data: self.max_depth = data["max_depth"]
+        if "min_depth" in data: self.min_depth = data["min_depth"]
+        if "aa" in data: self.aa = data["aa"]
+        if "path" in data: self.path = data["path"]
+        if "snap_path" in data: self.snap_path = data["snap_path"]
+        if "frames" in data: self.frames = data["frames"]
+        if "preview_max_size" in data: self.preview_max_size = data["preview_max_size"]
+        if "mp4" in data: self.mp4 = data["mp4"]
+
         self.checkpaths()
         return self
 
@@ -360,15 +365,15 @@ class LiveConfig:
     @staticmethod
     def load(app, data):
         self = LiveConfig(app)
-        self.steps = data["steps"]
-        self.step_scale = data["step_scale"]
-        self.stop_dist = data["stop_dist"]
-        self.max_depth = data["max_depth"]
-        self.min_depth = data["min_depth"]
-        self.size = data["size"]
-        self.margins = data["margins"]
-        self.clear = data["clear"]
-        self.downscale = data["downscale"]
+        if "steps" in data: self.steps = data["steps"]
+        if "step_scale" in data: self.step_scale = data["step_scale"]
+        if "stop_dist" in data: self.stop_dist = data["stop_dist"]
+        if "max_depth" in data: self.max_depth = data["max_depth"]
+        if "min_depth" in data: self.min_depth = data["min_depth"]
+        if "size" in data: self.size = data["size"]
+        if "margins" in data: self.margins = data["margins"]
+        if "clear" in data: self.clear = data["clear"]
+        if "downscale" in data: self.downscale = data["downscale"]
         return self
 
     @staticmethod
@@ -393,9 +398,10 @@ class LiveConfig:
 class AppConfig:
     def __init__(self):
         self.theme = 70
+        self.script_startup = False
 
     def save(self):
-        return {"theme": self.theme}
+        return {"theme": self.theme, "script_startup": self.script_startup}
 
     @staticmethod
     def default():
@@ -404,6 +410,6 @@ class AppConfig:
     @staticmethod
     def load(data):
         self = AppConfig()
-        self.theme = data["theme"]
+        if "theme" in data: self.theme = data["theme"]
+        if "script_startup" in data: self.script_startup = data["script_startup"]
         return self
-

@@ -46,7 +46,7 @@ ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Item {
-                        x: 5
+                        x: 0
                         y: 0
                         height: parent.height
                         width: height

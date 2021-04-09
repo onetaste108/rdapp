@@ -2,3 +2,4 @@
 /env-win/
 /target/
 /debug/
+__pycache__/

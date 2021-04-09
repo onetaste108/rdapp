@@ -17,7 +17,7 @@ import os
 class App:
     def __init__(self, resources="", project = None):
         super().__init__()
-        self.version = [0,6,0]
+        self.version = [0,7,0]
         self.resources = resources
         self.builder = Builder(resources+"/shaders")
         self.project = None
@@ -67,7 +67,7 @@ class App:
         try:
             with open(path, "r") as f:
                 data = json.loads(f.read())
-            if data["version"] != [0, 6, 0]:
+            if data["version"] != self.version:
                 raise ValueError("Project version {}.{}.{} is not compatable with app version {}.{}.{}".format(*data["version"], *self.version))
             self.project = Project.load(self, data["project"])
             self.render_config = RenderConfig.load(data["render_config"])
@@ -213,7 +213,7 @@ class App:
         self.project.set_code(code)
 
     def set_texture(self, path, print_err=True):
-        print("PATH", path)
+        # print("PATH", path)
         if not path or path == "":
             self.reader.release()
             self.project.texture = ""
@@ -226,7 +226,7 @@ class App:
                 self.fps = self.reader.fps
                 self.time = 0
             else:
-                self.fps = 60
+                self.fps = self.project.fps
         else:
             if path != self.resources + "/default.jpg":
                 self.set_texture(self.resources + "/default.jpg", print_err)
@@ -244,7 +244,6 @@ class App:
             if self.playing:
                 self.audio.play()
 
-
     def set_file(self, path):
         vid = True
         aud = True
@@ -256,7 +255,9 @@ class App:
 
     def run_script(self, code):
         try:
-            scope = {"app": self, "update": None}
+            scope = {
+                "app": self,
+                "on_update": None}
             exec(code, scope)
             update = scope["update"]
             if callable(update):
@@ -388,6 +389,7 @@ class App:
         return self.render_config.snap_path
 
     def set_render_frames(self, val):
+        val[1] = max(val[1], val[0])
         self.render_config.frames = val
 
     def get_render_frames(self):
@@ -398,6 +400,15 @@ class App:
 
     def get_render_preview_max_size(self):
         return self.render_config.preview_max_size
+
+    def set_render_mp4(self, val):
+        self.render_config.mp4 = val
+
+    def get_render_mp4(self):
+        return self.render_config.mp4
+
+    
+
 
     # Live Config API
 
@@ -463,3 +474,10 @@ class App:
 
     def get_live_downscale(self):
         return self.live_config.downscale
+
+
+    def set_script_startup(self, x):
+        self.app_config.script_startup = x
+
+    def get_script_startup(self):
+        return self.app_config.script_startup

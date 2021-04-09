@@ -106,6 +106,7 @@ Rectangle {
                                         anchors.margins: 5
                                         color: checkBox.active ? s.accent : (s.dark ? "white" : "black")
                                         opacity: checkBox.active ? 1 : 0.2
+                                        radius: width
 
                                         MouseArea {
                                             id: checkBoxMouse
@@ -124,6 +125,8 @@ Rectangle {
                                         anchors.fill: checkBoxBox
                                         color: (checkBox.active ? !s.dark : s.dark) ? "white" : "black"
                                         opacity: checkBox.hovered ? 0.2 : 0
+                                        radius: width
+
                                     }
                                 }
                             }

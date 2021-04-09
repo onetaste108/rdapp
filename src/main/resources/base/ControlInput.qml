@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Dialogs 1.3
+import QtQml 2.15
 
 
 Item {
@@ -72,7 +73,7 @@ Item {
                 target: slider
                 function onMoved(nval) {
                     if (inputControl.type == "int") {
-                        inputControl.valueChanged(Math.floor(nval));
+                        inputControl.valueChanged(sliderMouse.rememderInt + Math.floor(nval));
                     } else {
                         inputControl.valueChanged(parseFloat(val) + nval);
                     }
@@ -156,7 +157,7 @@ Item {
         folder: ""
         onAccepted: {
             var path = openFile.fileUrl.toString();
-            path = path.replace(/^(file:\/{3})/,"/");
+            path = path.replace(/^(file:\/{3})/, (Qt.platform.os == "windows" ? "" : "/"));
             var cleanPath = decodeURIComponent(path);
             inputControl.valueChanged(cleanPath)
         }

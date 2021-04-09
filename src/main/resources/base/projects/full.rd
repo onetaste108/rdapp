@@ -1,13 +1,13 @@
 {
     "version": [
         0,
-        6,
+        7,
         0
     ],
     "project": {
         "play": true,
         "time": 15.921907901763916,
-        "fps": 60,
+        "fps": 30,
         "camera": [
             0.8254509935968162,
             0.060416501333996314,
@@ -399,8 +399,10 @@
         "aa": 2,
         "path": "out/render/",
         "snap_path": "out/snap/",
-        "frames": "0",
-        "preview_max_size": 1024
+        "frames": [0, 10],
+        "preview_max_size": 1024,
+        "mp4": false
+
     },
     "live_config": {
         "steps": 128,

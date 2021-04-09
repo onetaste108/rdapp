@@ -299,7 +299,8 @@ class ConfigModelGeneral(ConfigModel):
                 SettingsValue("Size", "int", 2, self.app.set_render_size, self.app.get_render_size, 1),
                 SettingsValue("Snap Path", "path", 1, self.app.set_snap_path, self.app.get_snap_path),
                 SettingsValue("Render Path", "path", 1, self.app.set_render_path, self.app.get_render_path),
-                SettingsValue("Frames", "str", 1, self.app.set_render_frames, self.app.get_render_frames),
+                SettingsValue("Frames", "int", 2, self.app.set_render_frames, self.app.get_render_frames),
+                SettingsValue("Save MP4", "bool", 1, self.app.set_render_mp4, self.app.get_render_mp4),
             )
 
 class ConfigModelRender(ConfigModel):
@@ -338,7 +339,9 @@ class ConfigModelProject(ConfigModel):
             return (
                 SettingsValue("FPS", "float", 1, lambda x: self.app.project.set_fps(x), lambda: self.app.fps, 0),
                 SettingsValue("Audio", "file", 1, lambda x: self.app.set_audio(x), lambda: self.app.project.audio),
-                SettingsValue("Video", "file", 1, lambda x: self.app.set_texture(x), lambda: self.app.project.texture)
+                SettingsValue("Video", "file", 1, lambda x: self.app.set_texture(x), lambda: self.app.project.texture),
+                SettingsValue("Script Startup", "bool", 1, lambda x: self.app.set_script_startup(x), self.app.get_script_startup)
+
             )
 
 class Model(QtCore.QAbstractListModel):

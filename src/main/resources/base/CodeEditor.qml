@@ -116,6 +116,7 @@ Rectangle {
                     if ((event.key == Qt.Key_Return) && (event.modifiers == Qt.ControlModifier)) {
                         codeEditor.submit(getText(0, length))
                         event.accepted = true
+                        unfocus()
                     }
                     if (event.key == Qt.Key_Escape) {
                         unfocus()

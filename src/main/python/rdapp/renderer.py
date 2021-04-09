@@ -113,12 +113,36 @@ class Renderer:
         if self.job.snap:
             self.app.writer.save_frame(self.color_image, self.job.config.snap_path, None)
         else:
-            self.app.writer.save_frame(self.color_image, self.job.config.path, self.job.frame)
+            self.app.writer.save_frame(self.color_image, self.job.path, self.job.frame)
 
 
     def submit_job(self):
-        # print("Job {} finished".format(self.job.path))
-        pass
+        print("Job {} finished".format(self.job.path))
+        if self.job.config.mp4:
+            self.save_mp4(self.job)
+
+    def save_mp4(self, job):
+            print("Saving mp4...")
+            import os
+            audio = self.app.audio.segment
+            if audio:
+                time1 = job.frames[0]/job.fps*1000
+                time2 = job.frames[job.current_frame]/job.fps*1000
+                time_len = int(time2-time1)
+                time1 = max(0, min(len(audio)-1, int(time1)))
+                time2 = max(0, min(len(audio)-1, int(time2)))
+                audio_len = int(time2-time1)
+
+                if audio_len < 10:
+                    audio = None
+                else:
+                    audio = audio[time1:time2]
+                    if len(audio) < time_len:
+                        from pydub import AudioSegment
+                        audio += AudioSegment.silent(duration=time_len-len(audio))
+
+            path = os.path.join(job.path,  os.path.split(job.path)[-1]+"_%05d.png")
+            self.app.writer.save_mp4(path, job.fps, job.frames[0], job.frames[job.current_frame], audio)
 
     def submit_queue(self):
         self.finished = True
@@ -137,7 +161,9 @@ class Renderer:
         if self.cancel:
             self.cancel = False
             self.clear_frame()
+            self.submit_job()
             self.clear_job()
+
 
         if not self.job:
             if not self.next_job():
@@ -197,18 +223,32 @@ class Renderer:
         self.app.screen.clear(0, 0, 0, 0)
         self.blitter.render(self.app.screen, self.preview_fbo.tex, self.app.live_config.viewport)
 
+import os
 
 class RenderJob:
     def __init__(self, project, config, frames=None, snap=False):
         self.project = project
+        self.fps = self.project.fps
         self.snap = snap
         self.config = config
         self.path = config.path
+        if os.path.split(self.path)[-1] == "auto" and not self.snap:
+            name = os.path.split(os.path.split(self.path)[0])[-1]
+            folders = os.listdir(os.path.split(self.path)[0])
+            max_ = -1
+            for f in folders:
+                if f.startswith(name):
+                    if len(f[len(name):]) == 5:
+                        if f[len(name):].isdecimal():
+                            max_ = max(max_, int(f[len(name):]))
+            max_ += 1
+            self.path = os.path.join(os.path.split(self.path)[0], name+self.project.app.writer.frame_to_string(max_))
+
         # self.save_depth = config.save_depth
         if frames:
             self.frames = frames
         else:
-            self.frames = self.infer_frames(config.frames)
+            self.frames = range(config.frames[0], config.frames[1]+1)
         self.color_size = config.size
         self.aa = config.aa
         self.depth_size = self.color_size[0] * \
