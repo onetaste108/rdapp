@@ -350,11 +350,12 @@ ApplicationWindow {
                                         saveAsFile.open()
                                     }
                                     FileDialog {
-                                        id: saveAsFile
                                         selectExisting: false
+                                        id: saveAsFile
+                                        selectFolder: false
                                         title: "Save Project As..."
                                         nameFilters: [ "rdapp project (*.rd)" ]
-                                        folder: shortcuts.documents + "/rdapp/projects/rdproject"
+                                        folder: shortcuts.documents + "/rdapp/projects/"
                                         onAccepted: {
                                             var path = saveAsFile.fileUrl.toString();
                                             path = path.replace(/^(file:\/{3})/,(Qt.platform.os == "windows" ? "" : "/"));
@@ -372,7 +373,6 @@ ApplicationWindow {
                                     Layout.fillWidth: true
                                     text: "Open"
                                     onClicked: {
-
                                         loadFile.open()
                                     }
                                     FileDialog {

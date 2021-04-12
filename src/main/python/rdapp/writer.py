@@ -52,6 +52,7 @@ class Writer:
         try:
             self.save(image, outname)
             print("Saved {}".format(outname))
+            return outname
         except Exception as err:
             print("Error saving file: {}".format(err))
 

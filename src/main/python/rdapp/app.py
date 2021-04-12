@@ -92,10 +92,12 @@ class App:
     def init_project(self):
         self._live_build_requested = True
         self._code_update_requested = True
+        self.update = None
         self.set_texture(self.project.texture)
         self.set_audio(self.project.audio)
-
         self.states["project_loaded"] = True
+        if self.get_script_startup():
+            self.run_script(self.project.script)
 
     def save(self):
         out = {}
@@ -185,7 +187,13 @@ class App:
 
     @property
     def playing(self):
+        if self._state == "RENDER":
+            return True
         return self._play
+
+    @property
+    def rendering(self):
+        return self._state == "RENDER"
 
     def render(self):
         self._render_requested = True
@@ -257,7 +265,8 @@ class App:
         try:
             scope = {
                 "app": self,
-                "on_update": None}
+                "update": None
+                }
             exec(code, scope)
             update = scope["update"]
             if callable(update):
@@ -406,6 +415,18 @@ class App:
 
     def get_render_mp4(self):
         return self.render_config.mp4
+
+    def set_render_depth(self, val):
+        self.render_config.depth = val
+
+    def get_render_depth(self):
+        return self.render_config.depth
+
+    def set_render_depth_mask(self, val):
+        self.render_config.depth_mask = val
+
+    def get_render_depth_mask(self):
+        return self.render_config.depth_mask
 
     
 

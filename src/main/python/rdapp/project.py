@@ -279,6 +279,10 @@ class RenderConfig:
         self.frames = (0, 100)
         self.preview_max_size = 1024
         self.mp4 = False
+        self.depth = False
+        self.depth_mask = True
+
+
 
     def checkpaths(self):
         if not os.path.exists(self.path) and self.path != QtCore.QStandardPaths.locate(QtCore.QStandardPaths.DocumentsLocation, "", QtCore.QStandardPaths.LocateDirectory) + "rdapp/render/auto":
@@ -302,6 +306,8 @@ class RenderConfig:
         data["frames"] = self.frames
         data["preview_max_size"] = self.preview_max_size
         data["mp4"] = self.mp4
+        data["depth"] = self.depth
+
 
         return data
 

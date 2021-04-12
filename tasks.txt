@@ -1,8 +1,27 @@
+DEPTH:
+    - Depth map
+        - Dist map to mask
+    
+3D:
+    - Dist map
+    - UV map
+    - Marching cubes
+
+
+AUTO RENDER FOLDER ALL, TURN OFF + FIX DEPTH PATH
+RUN SCRIPT BUTTON
+DISPLAY VALUES AS FOR REAL, EXPRESSION
+
+
 - Make presets (?)
     - 1080x1080 loop 30s mp4 + snap
-    - 720x1280 vid 12s mp4 + snap
+    - Full HD
+    - Full HD Story
     - Audio reactive
     - Bump preview
+    - VR
+
+- Make demos for presets
 
 - Script:
     on start
@@ -16,9 +35,6 @@
     on_snap_finished
     on_startup
     on_run
-
-- Video output:
-    Unfreeze on render
 
 - No sound on pause
 

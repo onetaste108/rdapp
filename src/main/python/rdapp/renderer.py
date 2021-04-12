@@ -3,6 +3,7 @@ from rdapp import utils
 import copy
 import numpy as np
 from PIL import Image
+import os
 
 class Renderer:
     def __init__(self, app):
@@ -15,9 +16,12 @@ class Renderer:
         self.job = None
         self.color_program = None
         self.depth_program = None
+        
         self.depth_fbo = None
         self.color_fbo = None
         self.color_image = None
+        self.depth_image = None
+
 
         self.preview_fbo = None
         self.finished = True
@@ -62,6 +66,9 @@ class Renderer:
     def set_frame(self, frame):
         self.color_image = np.zeros(
             (self.job.color_size[1], self.job.color_size[0], 4), np.uint8)
+        if self.job.config.depth:
+            self.depth_image = np.zeros(
+                (self.job.color_size[1]*self.job.aa, self.job.color_size[0]*self.job.aa), np.uint16)
 
         self.app.frame = frame
         self.app._update(1 / self.app.fps)
@@ -71,10 +78,12 @@ class Renderer:
 
     def clear_frame(self):
         self.color_image = None
+        self.depth_image = None
+
 
     def set_patch(self, patch):
-        print("New patch: {} of {}, Size: {} ".format(
-            self.job.current_patch+1, len(self.job.patches), patch.size))
+        # print("New patch: {} of {}, Size: {} ".format(
+        #     self.job.current_patch+1, len(self.job.patches), patch.size))
 
         if self.depth_fbo:
             self.depth_fbo.resize((patch.width * self.job.aa,
@@ -111,13 +120,21 @@ class Renderer:
         print("Frame {} finished".format(self.job.frame))
         # print("Last frame?", self.job.last_frame, self.job.frame, len(self.job.frames))
         if self.job.snap:
-            self.app.writer.save_frame(self.color_image, self.job.config.snap_path, None)
+            path = self.app.writer.save_frame(self.color_image, self.job.config.snap_path, None)
+            if self.job.config.depth:
+                path = os.path.splitext(path)[0] + "_depth.png"
+                self.app.writer.save(self.depth_image, path)
         else:
-            self.app.writer.save_frame(self.color_image, self.job.path, self.job.frame)
+            path = self.job.config.path
+            self.app.writer.save_frame(self.color_image, path, self.job.frame)
+            if self.job.config.depth:
+                path = path + "_depth"
+                self.app.writer.save_frame(self.depth_image, path, self.job.frame)
+
 
 
     def submit_job(self):
-        print("Job {} finished".format(self.job.path))
+        # print("Job {} finished".format(self.job.path))
         if self.job.config.mp4:
             self.save_mp4(self.job)
 
@@ -182,6 +199,8 @@ class Renderer:
         else:
             self.render_color_patch()
             self.write_color_patch()
+            if self.job.config.depth:
+                self.write_depth_patch()
             self.render_preview(self.color_fbo.tex)
             if self.job.last_patch:
                 self.submit_frame()
@@ -213,6 +232,23 @@ class Renderer:
             data = np.uint8(Image.fromarray(data).resize((self.job.patch.width, self.job.patch.height), Image.BILINEAR))
         self.color_image[self.job.patch.y:self.job.patch.y+self.job.patch.height,
                    self.job.patch.x:self.job.patch.x+self.job.patch.width] = data
+
+    def write_depth_patch(self):
+        data = np.frombuffer(self.depth_fbo.tex.read(), np.uint8).astype("float32")/255
+        data = data.reshape(self.job.patch.height * self.job.aa, self.job.patch.width * self.job.aa, 4)
+        fix = 256.0/255.0
+        data = data[...,0]*fix/1.0+data[...,1]*fix/255.0
+
+        data = 1.0-data
+
+        if self.job.config.depth_mask:
+            color = np.frombuffer(self.color_fbo.tex.read(), np.uint8).astype("float32")/255.0
+            color = color.reshape(self.job.patch.height * self.job.aa, self.job.patch.width * self.job.aa, 4)
+            data = data * color[...,-1]
+            
+        data = np.uint16(data * np.iinfo(np.uint16).max)
+        self.depth_image[self.job.patch.y*self.job.aa:self.job.patch.y*self.job.aa+self.job.patch.height*self.job.aa,
+                   self.job.patch.x*self.job.aa:self.job.patch.x*self.job.aa+self.job.patch.width*self.job.aa] = data
 
     def render_preview(self, tex):
         rx, ry = (a/b for a, b in zip(self.job.preview_size, self.job.color_size))
@@ -327,7 +363,7 @@ class RenderJob:
         patches = []
         patches_x = int(np.ceil(size[0]/(max_patch//aa)))
         patches_y = int(np.ceil(size[1]/(max_patch//aa)))
-        print(patches_y)
+        # print(patches_y)
         patch_width = int(np.ceil(size[0] / patches_x))
         patch_height = int(np.ceil(size[1] / patches_y))
         for x in range(patches_x):

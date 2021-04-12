@@ -300,6 +300,7 @@ class ConfigModelGeneral(ConfigModel):
                 SettingsValue("Snap Path", "path", 1, self.app.set_snap_path, self.app.get_snap_path),
                 SettingsValue("Render Path", "path", 1, self.app.set_render_path, self.app.get_render_path),
                 SettingsValue("Frames", "int", 2, self.app.set_render_frames, self.app.get_render_frames),
+                SettingsValue("Depth", "bool", 1, self.app.set_render_depth, self.app.get_render_depth),
                 SettingsValue("Save MP4", "bool", 1, self.app.set_render_mp4, self.app.get_render_mp4),
             )
 
@@ -314,6 +315,7 @@ class ConfigModelRender(ConfigModel):
                 SettingsValue("Patch Size", "int", 1, self.app.set_render_max_patch, self.app.get_render_max_patch, 1),
                 SettingsValue("Max Depth", "float", 1, self.app.set_render_max_depth, self.app.get_render_max_depth),
                 SettingsValue("Min Depth", "float", 1, self.app.set_render_min_depth, self.app.get_render_min_depth),
+                SettingsValue("Depth Mask", "bool", 1, self.app.set_render_depth_mask, self.app.get_render_depth_mask),
                 SettingsValue("Preview Size", "int", 1, self.app.set_render_preview_max_size, self.app.get_render_preview_max_size, 0),
             )
 
@@ -340,7 +342,7 @@ class ConfigModelProject(ConfigModel):
                 SettingsValue("FPS", "float", 1, lambda x: self.app.project.set_fps(x), lambda: self.app.fps, 0),
                 SettingsValue("Audio", "file", 1, lambda x: self.app.set_audio(x), lambda: self.app.project.audio),
                 SettingsValue("Video", "file", 1, lambda x: self.app.set_texture(x), lambda: self.app.project.texture),
-                SettingsValue("Script Startup", "bool", 1, lambda x: self.app.set_script_startup(x), self.app.get_script_startup)
+                SettingsValue("Run Script", "bool", 1, lambda x: self.app.set_script_startup(x), self.app.get_script_startup)
 
             )
 
