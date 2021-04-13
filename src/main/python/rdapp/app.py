@@ -6,6 +6,8 @@ from rdapp.reader import Reader
 from rdapp.audio import Audio
 from rdapp.builder import Builder
 from rdapp.blitter import Blitter
+from rdapp.scanner import Scanner
+from rdapp.blitter import Blitter
 from rdapp.renderer import Renderer, RenderJob
 from rdapp.liver import Liver
 from rdapp import noise
@@ -33,10 +35,13 @@ class App:
         self.blitter = None
         self.liver = None
         self.renderer = None
+        self.scanner = None
 
         self._render_requested = False
         self._render_stop_requested = False
         self._render_requests = []
+        self._scan_requested = False
+        self._scan_stop_requested = False
         self._live_build_requested = False
         self._code_update_requested = False
 
@@ -62,6 +67,8 @@ class App:
         self.blitter = Blitter(self)
         self.liver = Liver(self)
         self.renderer = Renderer(self)
+        self.scanner = Scanner(self)
+
 
     def load_project(self, path=None):
         try:
@@ -141,10 +148,20 @@ class App:
             self._render_requests = []
             self._state = "RENDER"
             self.renderer.finished = False
+
+        if self._scan_requested:
+            self.scanner.start()
+            self._state = "SCAN"
+            self._scan_requested = False
+            self.scanner.finished = False
         
         if self._render_stop_requested:
             self._render_stop_requested = False
             self.renderer.cancel = True
+
+        if self._scan_stop_requested:
+            self._scan_stop_requested = False
+            self.scanner.cancel = True
 
 
         if self._state == "LIVE":
@@ -161,6 +178,12 @@ class App:
 
             self.renderer.advance()
             if self.renderer.finished:
+                self._state = "LIVE"
+
+        if self._state == "SCAN":
+
+            self.scanner.advance()
+            if self.scanner.finished:
                 self._state = "LIVE"
 
         elif self._state == "LIVE":
@@ -200,6 +223,9 @@ class App:
         self._render_requests.append(
             RenderJob(self.project, self.render_config))
 
+    def scan(self):
+        self._scan_requested = True
+
     def snap(self):
         self._render_requested = True
         self._render_requests.append(
@@ -209,6 +235,10 @@ class App:
         if self._state == "RENDER":
             self._render_stop_requested = True
 
+    def stop_scan(self):
+        if self._state == "SCAN":
+            self._scan_stop_requested = True
+            
     def get(self, name):
         if name in self.project.values:
             return self.project.values[name]
@@ -428,6 +458,17 @@ class App:
     def get_render_depth_mask(self):
         return self.render_config.depth_mask
 
+    def set_render_scan_box(self, val):
+        self.render_config.scan_box = val
+
+    def get_render_scan_box(self):
+        return self.render_config.scan_box
+
+    def set_render_scan_res(self, val):
+        self.render_config.scan_res = val
+
+    def get_render_scan_res(self):
+        return self.render_config.scan_res
     
 
 

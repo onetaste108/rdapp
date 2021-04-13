@@ -61,7 +61,11 @@ ApplicationWindow {
                 con.playPause()
             }
             if (event.key == Qt.Key_Backspace) {
-                log.clear()
+                if (event.modifiers & Qt.ControlModifier) {
+                    con.clearCurrentTimeline()
+                } else {
+                    log.clear()
+                }
             }
             if (event.modifiers & Qt.ControlModifier && event.key == Qt.Key_S) {
                 if (event.modifiers & Qt.ShiftModifier) {
@@ -237,19 +241,40 @@ ApplicationWindow {
 
 
                         Item {
-                            CodeEditor {
-                                id: codeEditor
+                            ColumnLayout {
                                 anchors.fill: parent
-                                format: "py"
-                                onSubmit: {
-                                    con.runScript(code)
+                                spacing: 0
+                                CodeEditor {
+                                    id: codeEditor
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+
+                                    format: "py"
+                                    onSubmit: {
+                                        con.runScript(code)
+                                    }
+                                    onVisibleChanged: {
+                                        if (!visible) {
+                                            unfocus()
+                                        }
+                                    }
                                 }
-                                onVisibleChanged: {
-                                    if (!visible) {
-                                        unfocus()
+                                RowLayout {
+                                    Layout.margins: 6
+                                    Layout.bottomMargin: 0
+                                    Layout.preferredHeight: 30
+                                    Layout.fillWidth: true
+                                    RD.Button {
+                                        text: "Run Script"
+                                        Layout.preferredHeight: 30
+                                        Layout.fillWidth: true
+                                        onClicked: {
+                                            codeEditor.submit(codeEditor.txtarea.getText(0, codeEditor.txtarea.length))
+                                        }
                                     }
                                 }
                             }
+
                             Connections {
                                 target: con
                                 function onCodeUpdated() {
@@ -260,22 +285,42 @@ ApplicationWindow {
                         }
                         Item {
                             id: activityTab
-                            CodeEditor {
-                                id: shaderEditor
+
+                            ColumnLayout {
                                 anchors.fill: parent
-                                format: "glsl"
-                                Connections {
-                                    target: con
-                                    function onShaderUpdated(code) {
-                                        shaderEditor.setText(con.getProjectShader())
+                                spacing: 0
+                                CodeEditor {
+                                    id: shaderEditor
+                                    Layout.fillHeight: true
+                                    Layout.fillWidth: true
+                                    format: "glsl"
+                                    Connections {
+                                        target: con
+                                        function onShaderUpdated(code) {
+                                            shaderEditor.setText(con.getProjectShader())
+                                        }
+                                    }
+                                    onSubmit: {
+                                        con.setProjectShader(code)
+                                    }
+                                    onVisibleChanged: {
+                                        if (!visible) {
+                                            unfocus()
+                                        }
                                     }
                                 }
-                                onSubmit: {
-                                    con.setProjectShader(code)
-                                }
-                                onVisibleChanged: {
-                                    if (!visible) {
-                                        unfocus()
+                                RowLayout {
+                                    Layout.margins: 6
+                                    Layout.bottomMargin: 0
+                                    Layout.preferredHeight: 30
+                                    Layout.fillWidth: true
+                                    RD.Button {
+                                        text: "Set Shader"
+                                        Layout.preferredHeight: 30
+                                        Layout.fillWidth: true
+                                        onClicked: {
+                                            codeEditor.submit(codeEditor.txtarea.getText(0, codeEditor.txtarea.length))
+                                        }
                                     }
                                 }
                             }
@@ -323,7 +368,7 @@ ApplicationWindow {
                                     text: "Render"
                                 }
                                 RD.Button {
-                                    visible: con.state == "RENDER"
+                                    visible: con.state == "RENDER" || con.state == "SCAN"
                                     textcolor: mstyle.background
                                     bgcolor: mstyle.accent
                                     bgopacity: 1

@@ -68,7 +68,7 @@ class Controller(QtCore.QObject):
     @Slot(result = str)
     def project_path(self):
         if self.app.project_path is not None:
-            print("APP", self.app.project_path)
+            # print("APP", self.app.project_path)
             return self.app.project_path
         else:
             return ""
@@ -90,12 +90,18 @@ class Controller(QtCore.QObject):
         self.app.render()
 
     @Slot()
+    def scan(self):
+        self.app.scan()
+
+    @Slot()
     def snap(self):
         self.app.snap()
 
     @Slot()
     def stop_render(self):
         self.app.stop_render()
+        self.app.stop_scan()
+
 
     stateChanged = Signal(str)
 
@@ -152,6 +158,14 @@ class Controller(QtCore.QObject):
             self.app.stop()
         else:
             self.app.play()
+
+    @Slot()
+    def clearCurrentTimeline(self):
+        if self.timeline.value is not None and self.timeline._visible:
+            t = self.timeline
+            if t.track:
+                for i in range(len(t.track.keyframes)):
+                    t.removeKeyframe(0)
 
     @Slot(str)
     def runScript(self, code):
@@ -317,6 +331,8 @@ class ConfigModelRender(ConfigModel):
                 SettingsValue("Min Depth", "float", 1, self.app.set_render_min_depth, self.app.get_render_min_depth),
                 SettingsValue("Depth Mask", "bool", 1, self.app.set_render_depth_mask, self.app.get_render_depth_mask),
                 SettingsValue("Preview Size", "int", 1, self.app.set_render_preview_max_size, self.app.get_render_preview_max_size, 0),
+                SettingsValue("Scan Box", "int", 1, self.app.set_render_scan_box, self.app.get_render_scan_box, 0),
+                SettingsValue("Scan Res", "int", 1, self.app.set_render_scan_res, self.app.get_render_scan_res, 0),
             )
 
 class ConfigModelPreview(ConfigModel):
@@ -342,7 +358,7 @@ class ConfigModelProject(ConfigModel):
                 SettingsValue("FPS", "float", 1, lambda x: self.app.project.set_fps(x), lambda: self.app.fps, 0),
                 SettingsValue("Audio", "file", 1, lambda x: self.app.set_audio(x), lambda: self.app.project.audio),
                 SettingsValue("Video", "file", 1, lambda x: self.app.set_texture(x), lambda: self.app.project.texture),
-                SettingsValue("Run Script", "bool", 1, lambda x: self.app.set_script_startup(x), self.app.get_script_startup)
+                SettingsValue("Script Start", "bool", 1, lambda x: self.app.set_script_startup(x), self.app.get_script_startup)
 
             )
 
@@ -385,6 +401,9 @@ class Model(QtCore.QAbstractListModel):
             key.set(value, role-3)
         self.dataChanged.emit(index, index)
         return False
+
+    def update(self):
+        self.dataChanged.emit(self.index(0), self.index(len(self.values)-1))
 
     def roleNames(self):
         return {

@@ -281,6 +281,8 @@ class RenderConfig:
         self.mp4 = False
         self.depth = False
         self.depth_mask = True
+        self.scan_box = 4
+        self.scan_res = 256
 
 
 
@@ -307,7 +309,8 @@ class RenderConfig:
         data["preview_max_size"] = self.preview_max_size
         data["mp4"] = self.mp4
         data["depth"] = self.depth
-
+        data["scan_box"] = self.scan_box
+        data["scan_res"] = self.scan_res
 
         return data
 
@@ -334,6 +337,9 @@ class RenderConfig:
         if "frames" in data: self.frames = data["frames"]
         if "preview_max_size" in data: self.preview_max_size = data["preview_max_size"]
         if "mp4" in data: self.mp4 = data["mp4"]
+        if "depth" in data: self.depth = data["depth"]
+        if "scan_box" in data: self.scan_box = data["scan_box"]
+        if "scan_res" in data: self.scan_res = data["scan_res"]
 
         self.checkpaths()
         return self

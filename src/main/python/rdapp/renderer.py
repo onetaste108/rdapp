@@ -268,9 +268,9 @@ class RenderJob:
         self.snap = snap
         self.config = config
         self.path = config.path
-        if os.path.split(self.path)[-1] == "auto" and not self.snap:
-            name = os.path.split(os.path.split(self.path)[0])[-1]
-            folders = os.listdir(os.path.split(self.path)[0])
+        if not self.snap:
+            name = os.path.split(self.path)[-1]
+            folders = os.listdir(self.path)
             max_ = -1
             for f in folders:
                 if f.startswith(name):
@@ -278,7 +278,7 @@ class RenderJob:
                         if f[len(name):].isdecimal():
                             max_ = max(max_, int(f[len(name):]))
             max_ += 1
-            self.path = os.path.join(os.path.split(self.path)[0], name+self.project.app.writer.frame_to_string(max_))
+            self.path = os.path.join(self.path, name+self.project.app.writer.frame_to_string(max_))
 
         # self.save_depth = config.save_depth
         if frames:

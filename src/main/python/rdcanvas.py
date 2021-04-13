@@ -55,6 +55,7 @@ class RDCanvas(Canvas):
         self.app.sync(self.dtime)
 
         self.controller.timeline.time = self.app.time
+        self.controller.propModel.update()
 
 
     def resize(self, width, height):

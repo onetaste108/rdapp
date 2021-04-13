@@ -10,6 +10,7 @@ Rectangle {
     id: codeEditor
     signal submit(string code)
     property string format: "py"
+    property variant txtarea: textArea
     function unfocus() {
         textArea.focus = false
         base.forceActiveFocus()

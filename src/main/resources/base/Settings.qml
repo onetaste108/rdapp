@@ -9,7 +9,7 @@ Rectangle {
     property variant s: style
     color: "transparent"
     // clip: true
-        ScrollView {
+    ScrollView {
         id: scroll
 
         ScrollBar.vertical.policy: ScrollBar.AlwaysOn
@@ -92,6 +92,19 @@ Rectangle {
                         visible: dropPreview.active
                         Layout.fillWidth: true
                         model: configPreview
+                    }
+                }
+
+
+
+                RD.Button {
+                    text: "Scan 3D"
+                    // Layout.preferredWidth: 10
+                    Layout.topMargin: 10
+                    Layout.preferredHeight: 30
+                    Layout.fillWidth: true
+                    onClicked: {
+                        con.scan()
                     }
                 }
 

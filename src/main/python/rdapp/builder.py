@@ -75,6 +75,18 @@ void main() {
         config["SCENE"] = project.code.code
         return self.build(config)
 
+    def scan(self, project, render_config):
+        config = self.default_config.copy()
+        config["RENDER_MODE"] = "MODE_SCAN"
+        config["RM_MAX_STEP"] = str(int(render_config.steps_max))
+        config["RM_STEP_SCALE"] = str(float(1/render_config.step_scale))
+        config["RM_STOP_DIST"] = str(float(1/render_config.stop_dist))
+        config["RM_MAX_DEPTH"] = str(float(render_config.max_depth))
+        config["RM_MIN_DEPTH"] = str(float(render_config.min_depth))
+        config["AA"] = str(int(render_config.aa))
+        config["SCENE"] = project.code.code
+        return self.build(config)
+
     def build(self, config):
         frag = self.frag_template
         for key in config:

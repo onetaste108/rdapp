@@ -17,6 +17,9 @@ uniform sampler2D tex;
 uniform sampler2D depth_texture;
 
 uniform bool use_depth_tex;
+uniform float _SCAN_BOX;
+uniform float _SCAN_Z;
+
 
 
 #define PI 3.1415926535897932384626433832795
@@ -32,6 +35,8 @@ uniform bool use_depth_tex;
 #define MODE_DEPTH_COLOR 0
 #define MODE_DEPTH 1
 #define MODE_COLOR 2
+#define MODE_SCAN 3
+
 
 // UTILS
 
@@ -345,6 +350,15 @@ vec4 renderDepthColor() {
   return color;
 }
 
+vec4 renderScan() {
+  vec3 pos = vec3(v_pos, _SCAN_Z*2.0-1.0)*_SCAN_BOX/2.0;
+  float dist = map(pos);
+  float dist2 = smoothstep(dist, -0.1, 0.1);
+  float dist3 = smoothstep(dist, -0.01, 0.01);
+  vec4 color = vec4(vec3(dist, dist2, dist3)+0.5, 1.0);
+  return color;
+}
+
 
 void main() {
 
@@ -355,6 +369,8 @@ void main() {
     color = renderDepth();
   } else if (RENDER_MODE == MODE_COLOR) {
     color = renderColor();
+  } else if (RENDER_MODE == MODE_SCAN) {
+    color = renderScan();
   }
 
   FragColor = color;
